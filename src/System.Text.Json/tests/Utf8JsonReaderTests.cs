@@ -1796,6 +1796,47 @@ namespace System.Text.Json.Tests
             }
         }
 
+        [Fact]
+        public static void TestBOMWithSingleJsonValue()
+        {
+            Assert.ThrowsAny<JsonException>(() =>
+            {
+                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF, (byte)'1' };
+                var json = new Utf8JsonReader(Utf8BomAndValue, true, default);
+                json.Read();
+            }
+            );
+
+            Assert.ThrowsAny<JsonException>(() =>
+            {
+                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF, (byte)'1' };
+                var json = new Utf8JsonReader(Utf8BomAndValue, false, default);
+                json.Read();
+            }
+            );
+
+            Assert.ThrowsAny<JsonException>(() =>
+            {
+                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF};
+                var json = new Utf8JsonReader(Utf8BomAndValue, true, default);
+                json.Read();
+            }
+            );
+
+            Assert.ThrowsAny<JsonException>(() =>
+            {
+                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF};
+                var json = new Utf8JsonReader(Utf8BomAndValue, false, default);
+                json.Read();
+            }
+            );
+
+            byte[] Utf8BomAndValueArray = new byte[] { 0xEF, 0xBB, 0xBF, 49 };
+            Stream stream = new MemoryStream(Utf8BomAndValueArray);
+            var jsonTask = JsonSerializer.ReadAsync<byte>(stream);
+            Assert.Equal(1, jsonTask.Result);
+        }
+
         [Theory]
         [MemberData(nameof(SingleValueJson))]
         public static void SingleJsonValue(string jsonString, string expectedString)
