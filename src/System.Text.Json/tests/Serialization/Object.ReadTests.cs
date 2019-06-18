@@ -239,5 +239,42 @@ namespace System.Text.Json.Serialization.Tests
             Assert.Equal("Value", indexer.NonIndexerProp);
             Assert.Equal(-1, indexer[0]);
         }
+
+        [Fact]
+        public static void Test()
+        {
+            var input = new Class1()
+            {
+                Test = "value1",
+                Child = new Class2()
+            };
+
+            Assert.Null(input.Dict);
+
+            var str = JsonSerializer.ToString(input, new JsonSerializerOptions { IgnoreNullValues = true });
+
+            Assert.Equal("{\"Test\":\"value1\",\"Dict\":null,\"Child\":{\"Dict\":null}}", str);
+
+            Class1 output = JsonSerializer.Parse<Class1>(str, new JsonSerializerOptions { IgnoreNullValues = true });
+
+            Assert.True(output.Test == "value1");
+            Assert.Null(output.Dict);   // Fails
+            Assert.NotNull(output.Child);   // Fails
+            Assert.Null(output.Child.Dict);
+            Assert.Null(output.Child.Test);
+        }
+
+        class Class1
+        {
+            public string Test { get; set; }
+            public Dictionary<string, string> Dict { get; set; }
+            public Class2 Child { get; set; }
+        }
+
+        class Class2
+        {
+            public string Test { get; set; }
+            public Dictionary<string, string> Dict { get; set; }
+        }
     }
 }
