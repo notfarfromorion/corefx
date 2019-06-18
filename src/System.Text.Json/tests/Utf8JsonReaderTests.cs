@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -1796,45 +1797,18 @@ namespace System.Text.Json.Tests
             }
         }
 
-        [Fact]
-        public static void TestBOMWithSingleJsonValue()
+        [Theory]
+        [InlineData(new byte[] { 0xEF, 0xBB, 0xBF, (byte)'1' }, true)]
+        [InlineData(new byte[] { 0xEF, 0xBB, 0xBF, (byte)'1' }, false)]
+        [InlineData(new byte[] { 0xEF, 0xBB, 0xBF }, true)]
+        [InlineData(new byte[] { 0xEF, 0xBB, 0xBF }, false)]
+        public static void TestBOMWithSingleJsonValue(byte[] utf8BomAndValue, bool isFinalBlock)
         {
             Assert.ThrowsAny<JsonException>(() =>
             {
-                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF, (byte)'1' };
-                var json = new Utf8JsonReader(Utf8BomAndValue, true, default);
+                var json = new Utf8JsonReader(utf8BomAndValue, isFinalBlock: isFinalBlock, state: default);
                 json.Read();
-            }
-            );
-
-            Assert.ThrowsAny<JsonException>(() =>
-            {
-                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF, (byte)'1' };
-                var json = new Utf8JsonReader(Utf8BomAndValue, false, default);
-                json.Read();
-            }
-            );
-
-            Assert.ThrowsAny<JsonException>(() =>
-            {
-                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF};
-                var json = new Utf8JsonReader(Utf8BomAndValue, true, default);
-                json.Read();
-            }
-            );
-
-            Assert.ThrowsAny<JsonException>(() =>
-            {
-                ReadOnlySpan<byte> Utf8BomAndValue = new byte[] { 0xEF, 0xBB, 0xBF};
-                var json = new Utf8JsonReader(Utf8BomAndValue, false, default);
-                json.Read();
-            }
-            );
-
-            byte[] Utf8BomAndValueArray = new byte[] { 0xEF, 0xBB, 0xBF, 49 };
-            Stream stream = new MemoryStream(Utf8BomAndValueArray);
-            var jsonTask = JsonSerializer.ReadAsync<byte>(stream);
-            Assert.Equal(1, jsonTask.Result);
+            });
         }
 
         [Theory]

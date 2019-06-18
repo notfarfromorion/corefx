@@ -79,5 +79,28 @@ namespace System.Text.Json.Serialization.Tests
                 Assert.Equal(1, i);
             }
         }
+
+        [Fact]
+        public static async Task TestBOMWithSingleJsonValue()
+        {
+            byte[] utf8BomAndValueArray = new byte[] { 0xEF, 0xBB, 0xBF, 49 };
+            byte value;
+            using (Stream stream = new MemoryStream(utf8BomAndValueArray))
+            {
+                value = await JsonSerializer.ReadAsync<byte>(stream);
+            }
+            Assert.Equal(1, value);
+
+            using (Stream stream = new MemoryStream(utf8BomAndValueArray))
+            {
+                JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    DefaultBufferSize = 1,
+                };
+
+                value = await JsonSerializer.ReadAsync<byte>(stream, options);
+            }
+            Assert.Equal(1, value);
+        }
     }
 }
