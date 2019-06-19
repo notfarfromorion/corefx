@@ -4,6 +4,7 @@
 
 using System.Buffers;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace System.Text.Json
@@ -22,7 +23,7 @@ namespace System.Text.Json
             try
             {
                 JsonReaderState initialState = default;
-
+                int cc = 0;
                 while (true)
                 {
                     if (readStack.ReadAhead)
@@ -33,12 +34,19 @@ namespace System.Text.Json
                         initialState = reader.CurrentState;
                     }
 
+                    if (cc == 3)
+                    {
+                        for (int i = 0; i < 1; i++)
+                        {
+
+                        }
+                    }
                     if (!reader.Read())
                     {
                         // Need more data
                         break;
                     }
-
+                    cc++;
                     JsonTokenType tokenType = reader.TokenType;
 
                     if (JsonHelpers.IsInRangeInclusive(tokenType, JsonTokenType.String, JsonTokenType.False))

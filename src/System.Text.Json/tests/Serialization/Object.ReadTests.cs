@@ -241,7 +241,7 @@ namespace System.Text.Json.Serialization.Tests
         }
 
         [Fact]
-        public static void Test()
+        public static void TestNullDictionary()
         {
             var input = new Class1()
             {
