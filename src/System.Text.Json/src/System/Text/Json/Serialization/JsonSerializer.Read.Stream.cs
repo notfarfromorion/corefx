@@ -150,7 +150,7 @@ namespace System.Text.Json
                     ReadCore(
                         ref readerState,
                         isFinalBlock,
-                        new Span<byte>(buffer, start, bytesInBuffer),
+                        new ReadOnlySpan<byte>(buffer, start, bytesInBuffer),
                         options,
                         ref readStack);
 
@@ -169,7 +169,7 @@ namespace System.Text.Json
                     {
                         // We have less than half the buffer available, double the buffer size.
                         byte[] dest = ArrayPool<byte>.Shared.Rent((buffer.Length < (int.MaxValue / 2)) ? buffer.Length * 2 : int.MaxValue);
-                        
+
                         // Copy the unprocessed data to the new buffer while shifting the processed bytes.
                         Buffer.BlockCopy(buffer, bytesConsumed, dest, 0, bytesInBuffer);
 
@@ -204,7 +204,7 @@ namespace System.Text.Json
         private static void ReadCore(
             ref JsonReaderState readerState,
             bool isFinalBlock,
-            Span<byte> buffer,
+            ReadOnlySpan<byte> buffer,
             JsonSerializerOptions options,
             ref ReadStack readStack)
         {
