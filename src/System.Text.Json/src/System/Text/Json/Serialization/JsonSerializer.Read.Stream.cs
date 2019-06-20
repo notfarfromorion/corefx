@@ -139,7 +139,8 @@ namespace System.Text.Json
                     {
                         firstIteration = false;
                         // Handle the UTF-8 BOM if present
-                        if (buffer.Length >= utf8BomLength && JsonConstants.Utf8Bom.SequenceEqual(buffer.AsSpan(0, utf8BomLength).Slice(0, utf8BomLength)))
+                        Debug.Assert(buffer.Length >= JsonConstants.Utf8Bom.Length);
+                        if (buffer.AsSpan().StartsWith(JsonConstants.Utf8Bom)))
                         {
                             start += utf8BomLength;
                             bytesInBuffer -= utf8BomLength;
